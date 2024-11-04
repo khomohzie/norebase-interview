@@ -56,7 +56,7 @@ function displayList(items, wrapper, rowsPerPage, page) {
     codeCell.textContent = paginatedItems[i].symbol;
 
     let priceCell = document.createElement("td");
-    priceCell.textContent = paginatedItems[i].price_usd;
+    priceCell.textContent = `$${paginatedItems[i].price_usd}`;
 
     let supplyCell = document.createElement("td");
     supplyCell.textContent = paginatedItems[i].tsupply;
