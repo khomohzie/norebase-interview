@@ -9,6 +9,7 @@ let currentPage = 1;
 let rows = 10;
 let totalData = []; // Store all fetched data here
 let totalFetchedCoins = 0; // Track total coins fetched so far
+const maxVisiblePages = 5; // Max number of visible page buttons
 
 // Initial fetch
 fetchData(0);
@@ -74,15 +75,44 @@ function displayList(items, wrapper, rowsPerPage, page) {
 
 function setupPagination(items, wrapper, rowsPerPage) {
   wrapper.innerHTML = "";
+  let pageCount = Math.ceil(items.length / rowsPerPage);
 
-  let page_count = Math.ceil(items.length / rowsPerPage);
+  // Add Previous button
+  let prevButton = document.createElement("button");
+  prevButton.innerText = "Previous";
+  prevButton.classList.add("btn");
+  prevButton.disabled = currentPage === 1;
+  prevButton.addEventListener("click", () => {
+    currentPage = Math.max(1, currentPage - 1);
+    displayList(items, myTable, rows, currentPage);
+    setupPagination(items, wrapper, rowsPerPage);
+  });
+  wrapper.appendChild(prevButton);
 
-  pageInfoDiv.appendChild(pageInfo);
+  // Page buttons
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(pageCount, startPage + maxVisiblePages - 1);
 
-  for (let i = 1; i < page_count + 1; i++) {
+  if (endPage - startPage < maxVisiblePages - 1) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
     let btn = paginationButton(i, items);
     wrapper.appendChild(btn);
   }
+
+  // Add Next button
+  let nextButton = document.createElement("button");
+  nextButton.innerText = "Next";
+  nextButton.classList.add("btn");
+  nextButton.disabled = currentPage === pageCount;
+  nextButton.addEventListener("click", () => {
+    currentPage = Math.min(pageCount, currentPage + 1);
+    displayList(items, myTable, rows, currentPage);
+    setupPagination(items, wrapper, rowsPerPage);
+  });
+  wrapper.appendChild(nextButton);
 }
 
 function paginationButton(page, items) {
@@ -90,17 +120,13 @@ function paginationButton(page, items) {
   button.innerText = page;
   button.classList.add("btn");
 
-  if (currentPage == page) button.classList.add("btn-active");
+  if (currentPage === page) button.classList.add("btn-active");
 
   button.addEventListener("click", function () {
     currentPage = page;
 
     displayList(items, myTable, rows, currentPage);
-
-    let currentBtn = document.querySelector(".pagenumbers button.btn-active");
-    currentBtn.classList.remove("btn-active");
-
-    button.classList.add("btn-active");
+    setupPagination(items, paginationElement, rows); // Update pagination buttons
   });
 
   return button;
