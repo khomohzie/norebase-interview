@@ -7,19 +7,26 @@ let pageInfo = document.createElement("span");
 
 let currentPage = 1;
 let rows = 10;
+let totalData = []; // Store all fetched data here
+let totalFetchedCoins = 0; // Track total coins fetched so far
 
-const apiData = fetch("https://api.coinlore.net/api/tickers/")
-  .then(function (res) {
-    return res.json();
-  })
-  .then((coinData) => {
-    console.log(coinData.data);
-    displayList(coinData.data, myTable, rows, currentPage);
-    setupPagination(coinData.data, paginationElement, rows);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// Initial fetch
+fetchData(0);
+
+function fetchData(startIndex) {
+  fetch(`https://api.coinlore.net/api/tickers/?start=${startIndex}&limit=100`)
+    .then((res) => res.json())
+    .then((coinData) => {
+      const newCoins = coinData.data;
+      totalData = totalData.concat(newCoins); // Append new coins to totalData
+      totalFetchedCoins += newCoins.length;
+      displayList(totalData, myTable, rows, currentPage);
+      setupPagination(totalData, paginationElement, rows);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 
 function displayList(items, wrapper, rowsPerPage, page) {
   wrapper.innerHTML = "";
@@ -32,13 +39,10 @@ function displayList(items, wrapper, rowsPerPage, page) {
   // Dynamically update the "Showing X-Y of Z coins" text
   const totalItems = items.length;
   const showingStart = start + 1;
-  const showingEnd = Math.min(end, totalItems); // Ensure we don’t go beyond total items
-  tableNameDiv.textContent = `Showing ${showingStart}-${showingEnd} of ${totalItems} coins`;
+  const showingEnd = Math.min(end, totalItems);
+  tableNameDiv.textContent = `Showing ${showingStart}-${showingEnd} of ${totalFetchedCoins} coins`;
 
-  const sortedItems = items.sort((a, b) => {
-    return a.index - b.index;
-  });
-
+  const sortedItems = items.sort((a, b) => a.index - b.index);
   let paginatedItems = sortedItems.slice(start, end);
 
   for (let i = 0; i < paginatedItems.length; i++) {
@@ -58,12 +62,13 @@ function displayList(items, wrapper, rowsPerPage, page) {
 
     pageInfo.textContent = `PAGE ${page + 1} OF ${page_count}`;
 
-    newRow.append(coinCell);
-    newRow.append(codeCell);
-    newRow.append(priceCell);
-    newRow.append(supplyCell);
-
+    newRow.append(coinCell, codeCell, priceCell, supplyCell);
     wrapper.appendChild(newRow);
+  }
+
+  // If on the last page, fetch more coins
+  if (page === page_count - 1 && totalItems === totalFetchedCoins) {
+    fetchData(totalFetchedCoins); // Fetch next batch of 100 coins
   }
 }
 
