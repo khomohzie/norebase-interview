@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <link rel="icon" type="image/png" href="/coin.png" />
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CoinLore - Home</title>
 
     <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/index.css" />
     <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
       rel="stylesheet"
@@ -28,6 +30,26 @@
       <div class="breadcrumb">
         <i class="bx bx-menu" id="btn"></i>
         Norebase Frontend Developer Test / CoinLore
+      </div>
+
+      <div class="table-container">
+        <div class="table__name">Showing 1-10 of 100 coins</div>
+        <table class="table" width="100%">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">💰 Coin</th>
+              <th scope="col">📄 Code</th>
+              <th scope="col">🤑 Price</th>
+              <th scope="col">📉 Total Supply</th>
+            </tr>
+          </thead>
+          <tbody id="html-data-table"></tbody>
+        </table>
+
+        <div class="pagenumbers">
+          <div class="page-info" id="page-info"></div>
+          <div class="btn-group" id="pagination"></div>
+        </div>
       </div>
     </div>
 
